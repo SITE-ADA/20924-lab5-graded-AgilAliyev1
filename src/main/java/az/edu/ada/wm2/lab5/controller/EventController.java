@@ -121,7 +121,7 @@ public class EventController {
             return new ResponseEntity<>(events,HttpStatus.OK);
         }
         catch (Exception e){
-            return new ResponseEntity<>(HttpStatus.INTERNAL_SERVER_ERROR)
+            return new ResponseEntity<>(HttpStatus.INTERNAL_SERVER_ERROR);
         }
 }
 @PatchMapping("/{id}/price")
