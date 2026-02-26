@@ -117,7 +117,16 @@ public class EventController {
             return new ResponseEntity<>(HttpStatus.BAD_REQUEST);
         }
     }
-@GetMapping("/upcoming")
+    @GetMapping("/filter/tag")
+    public ResponseEntity<List<Event>> getEventsByTag(@RequestParam("tag") String tag) {
+        try {
+            List<Event> events = eventService.getEventsByTag(tag);
+            return new ResponseEntity<>(events, HttpStatus.OK);
+        } catch (Exception e) {
+            return new ResponseEntity<>(HttpStatus.INTERNAL_SERVER_ERROR);
+        }
+
+        @GetMapping("/upcoming")
     public ResponseEntity<List<Event>>getUpcomingEvents(){
         try{
             List<Event> events= eventService.getUpcomingEvents();
