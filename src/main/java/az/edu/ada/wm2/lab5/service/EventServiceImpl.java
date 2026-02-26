@@ -7,6 +7,8 @@ import org.springframework.stereotype.Service;
 
 import java.math.BigDecimal;
 import java.time.LocalDateTime;
+import java.util.ArrayList;
+import java.util.Date;
 import java.util.List;
 import java.util.UUID;
 import java.util.stream.Collectors;
@@ -85,26 +87,24 @@ public class EventServiceImpl implements EventService {
     // Custom methods
     @Override
     public List<Event> getEventsByTag(String tag) {
-
         if (tag == null || tag.trim().isEmpty()) {
             return List.of();
-
         }
-    String normalizedTag =tag.trim().toLowerCase()
-            .filter(e -> e != null && e.getTags() != null)
-            .filter(e -> e.getTags().stream()
-                    .filter(t -> t != null && !t.trim().isEmpty())
-                    .anyMatch(t -> t.trim().toLowerCase().equals(normalizedTag)))
-            .toList();;
 
+        String normalizedTag = tag.trim().toLowerCase();
+
+        return eventRepository.findAll().stream()
+                .filter(e -> e != null && e.getTags() != null)
+                .filter(e -> e.getTags().stream()
+                        .filter(t -> t != null && !t.trim().isEmpty())
+                        .anyMatch(t -> t.trim().toLowerCase().equals(normalizedTag)))
+                .toList();
     }
-
 
     @Override
     public List<Event> getUpcomingEvents() {
 
-        return eventRepository.findAll().stream()
-                .filter(e->e!=null && e.getEventDateTime()!=null)
+        return eventRepository.findAll().stream().filter(e -> e != null && e.getEventDateTime() != null)
                 .filter(event -> !event.getEventDateTime().isBefore(LocalDateTime.now()))
                 .collect(Collectors.toList());
 
@@ -112,7 +112,11 @@ public class EventServiceImpl implements EventService {
 
     @Override
     public List<Event> getEventsByPriceRange(BigDecimal minPrice, BigDecimal maxPrice) {
-       return List.of();
+        return eventRepository.findAll().stream()
+                .filter(e -> e != null && e.getTicketPrice() != null)
+                .filter(e -> minPrice == null || e.getTicketPrice().compareTo(minPrice) >= 0)
+                .filter(e -> maxPrice == null || e.getTicketPrice().compareTo(maxPrice) <= 0)
+                .collect(Collectors.toList());
     }
 
     @Override
