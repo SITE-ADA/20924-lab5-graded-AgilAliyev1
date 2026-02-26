@@ -3,10 +3,13 @@ package az.edu.ada.wm2.lab5.controller;
 import az.edu.ada.wm2.lab5.model.Event;
 import az.edu.ada.wm2.lab5.service.EventService;
 import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.format.annotation.DateTimeFormat;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.*;
 
+import java.math.BigDecimal;
+import java.time.LocalDateTime;
 import java.util.List;
 import java.util.UUID;
 
@@ -95,4 +98,65 @@ public class EventController {
         }
     }
 
+    @GetMapping("/filter/date")
+    public ResponseEntity<List<Event>> getEventsByDateRange(
+            @RequestParam("start")
+            @DateTimeFormat(iso = DateTimeFormat.ISO.DATE_TIME) LocalDateTime start,
+            @RequestParam("end")
+            @DateTimeFormat(iso = DateTimeFormat.ISO.DATE_TIME) LocalDateTime end) {
+        try {
+            List<Event> eventsList = eventService.getEventsByDateRange(start, end);
+            return new ResponseEntity<>(eventsList, HttpStatus.OK);
+        } catch (Exception e) {
+            return new ResponseEntity<>(HttpStatus.BAD_REQUEST);
+        }
+    }
+
+    @GetMapping("/filter/price")
+    public ResponseEntity<List<Event>> getEventsByPriceRange(
+            @RequestParam("min") BigDecimal min,
+            @RequestParam("max") BigDecimal max) {
+        try {
+            List<Event> events = eventService.getEventsByPriceRange(min, max);
+            return new ResponseEntity<>(events, HttpStatus.OK);
+        } catch (Exception e) {
+            return new ResponseEntity<>(HttpStatus.BAD_REQUEST);
+        }
+    }
+
+    @GetMapping("/filter/tag")
+    public ResponseEntity<List<Event>> getEventsByTag(@RequestParam("tag") String tag) {
+        try {
+            List<Event> events = eventService.getEventsByTag(tag);
+            return new ResponseEntity<>(events, HttpStatus.OK);
+        } catch (Exception e) {
+            return new ResponseEntity<>(HttpStatus.BAD_REQUEST);
+        }
+    }
+
+    @GetMapping("/upcoming")
+    public ResponseEntity<List<Event>> getUpcomingEvents() {
+        try {
+            List<Event> events = eventService.getUpcomingEvents();
+            return new ResponseEntity<>(events, HttpStatus.OK);
+        } catch (Exception e) {
+            return new ResponseEntity<>(HttpStatus.INTERNAL_SERVER_ERROR);
+        }
+    }
+
+    @PatchMapping("/{id}/price")
+    public ResponseEntity<Event> updateEventPrice(
+            @PathVariable UUID id,
+            @RequestParam("price") BigDecimal price) {
+        try {
+            Event updatedEvent = eventService.updateEventPrice(id, price);
+            return new ResponseEntity<>(updatedEvent, HttpStatus.OK);
+        } catch (IllegalArgumentException e) {
+            return new ResponseEntity<>(HttpStatus.BAD_REQUEST);
+        } catch (RuntimeException e) {
+            return new ResponseEntity<>(HttpStatus.NOT_FOUND);
+        } catch (Exception e) {
+            return new ResponseEntity<>(HttpStatus.BAD_REQUEST);
+        }
+    }
 }
